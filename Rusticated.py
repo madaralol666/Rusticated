@@ -32,7 +32,7 @@ if input_server_name in Server_names:
         print("Helli      ", event[2].text.split('\n')[1])
         print("Chinook    ",event[3].text.split('\n')[1])
 
-        if event[0].text.split('\n')[1] == "0h 8m 0s ago":
+        if event[0].text.split('\n')[1] == "0h 0m 0s ago":
             playsound.playsound('Sounds/Airdrop.mp3')
 
         if event[1].text.split('\n')[1] == "0h 0m 0s ago":
