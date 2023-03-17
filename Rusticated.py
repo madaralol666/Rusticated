@@ -1,54 +1,47 @@
-from selenium import webdriver
-from bs4 import BeautifulSoup
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver import Edge, EdgeOptions
+from selenium.webdriver.common.by import By
+from Server_name import Server_names
 import playsound
-import datetime
 import time
 import os
-import re
 
 
-options = webdriver.EdgeOptions()
-options.add_experimental_option('excludeSwitches', ['enable-logging'])
-#Starting Driver
-driver = webdriver.Edge(options=options)
-driver.get('https://rusticated.com/')
+pars_link_account = "https://rusticated.com/"
+options = EdgeOptions()
+options.add_argument('headless')
+options.add_argument('disable-logging')
+options.add_argument('log-level=3')
+options.add_argument('--enable-javascript')
+driver = Edge(options=options)
+driver.get(pars_link_account)
+wait = WebDriverWait(driver, 10)
 
-time.sleep(0.2)
-# DateTime(int)
-def EventTime(TimeOfEvent):
-    DropTime = re.sub("[h|m]",",",TimeOfEvent[:-3])
-    DropTime = re.sub("[s| ]","",DropTime).split(',')
-    DropTime_int = [int(x) for x in DropTime]
-    DropTime_ = datetime.time(DropTime_int[0],DropTime_int[1],DropTime_int[2])
-    return DropTime_
-        
-# Log Info
-while True:
-    html = driver.page_source
-    soup = BeautifulSoup(html, 'lxml')
+input_server_name = input()
 
-    AirDrop = soup.findAll('span', class_="sc-cZFQFd cEnZuv")[56].text
-    CargoShip = soup.findAll('span', class_="sc-cZFQFd cEnZuv")[57].text
-    Heli = soup.findAll('span', class_="sc-cZFQFd cEnZuv")[58].text
-    Chinook = soup.findAll('span', class_="sc-cZFQFd cEnZuv")[59].text
+if input_server_name in Server_names:
+    while True:
 
-    # Sound Check
-    if EventTime(AirDrop) == datetime.time(0, 0, 0):
-        playsound.playsound('Sounds/Airdrop.mp3')
-    if EventTime(CargoShip) == datetime.time(0, 0, 0):
-        playsound.playsound('Sounds/Cargoship.mp3')
-    if EventTime(Heli) == datetime.time(0, 0, 0):
-        playsound.playsound('Sounds/Helli.mp3')
-    if EventTime(Chinook) == datetime.time(0, 0, 0):
-        playsound.playsound('Sounds/Chinook.mp3')
+        element = wait.until(EC.presence_of_element_located((By.XPATH, f"//*[contains(text(), '{input_server_name}')]")))
+        event = element.find_elements(By.CSS_SELECTOR, "li.sc-jRwbcX.ksMOFF")
+        time.sleep(0.5)
+        os.system('cls')
+        print("Airdrop    ", event[0].text.split('\n')[1])
+        print("Cargoship  ", event[1].text.split('\n')[1])
+        print("Helli      ", event[2].text.split('\n')[1])
+        print("Chinook    ",event[3].text.split('\n')[1])
 
-    time.sleep(1)
-    os.system("cls")
-    print(
-        f"-------------------------------------\n"
-        f"AirDrop:     {EventTime(AirDrop)}\n"
-        f"CargoShip:   {EventTime(CargoShip)}\n"
-        f"Heli:        {EventTime(Heli)}\n"
-        f"ChinookInfo: {EventTime(Chinook)}\n"
-        f"-------------------------------------",
-    )
+        if event[0].text.split('\n')[1] == "0h 8m 0s ago":
+            playsound.playsound('Sounds/Airdrop.mp3')
+
+        if event[1].text.split('\n')[1] == "0h 0m 0s ago":
+            playsound.playsound('Sounds/Cargoship.mp3')
+
+        if event[2].text.split('\n')[1] == "0h 0m 0s ago":
+            playsound.playsound('Sounds/Helli.mp3')
+            
+        if event[3].text.split('\n')[1] == "0h 0m 0s ago":
+            playsound.playsound('Sounds/Chinook.mp3')
+else:
+    print('Error: not found server name')
